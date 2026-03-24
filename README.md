@@ -89,6 +89,17 @@ These run during active work sessions — when you're designing a schema, review
 
 **Who uses these:** SAs during build and design work. `customer-scenario-generator` is also useful for enablement and sales engineering.
 
+### Custom Extension Development — Build Airtable Extensions
+
+These skills support the full lifecycle of building Airtable Custom Extensions — from scaffolding a new project to building production-quality React UIs.
+
+| Skill | What it does |
+|-------|-------------|
+| `scaffold-extension` | Scaffolds a new Custom Extension project with git initialized, secrets protected, and context indexing configured. Gets you from zero to a working repo in minutes. |
+| `extension-ui` | Builds production-quality Custom Extension UIs with React. Covers component architecture, styling, performance, and accessibility. Includes reference docs for field types, React patterns, shadcn components, and toolkit utilities. |
+
+**Who uses these:** SAs and DCs building Custom Extensions for customer engagements. Also useful for anyone prototyping extension ideas.
+
 ### Shared Dependencies — Libraries Read by Other Skills
 
 These aren't invoked directly. They're reference materials that the deliverable and advisory skills read before executing. You don't need to think about them — they just need to be installed.

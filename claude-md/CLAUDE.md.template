@@ -1,0 +1,276 @@
+# Cowork Rules — Solution Architect Template
+
+## Template Usage
+
+This is a **team-generic template** for Cowork CLAUDE.md configuration files. Copy this file to your personal `.claude/CLAUDE.md` and customize the sections marked **[CUSTOMIZE]**.
+
+### Sections NOT to modify:
+- **Skill Routing** — These mappings are curated by the SA team and should remain consistent across all SAs
+- **Disambiguation Rules** — Identical logic for all SAs
+- **Document Generation Rules** — Brand standards apply to all deliverables
+- **Skill Creation Requirements** — Technical requirements for skill publishing
+- **Skills NOT to invoke directly** — Dependency list for all skills
+
+### Sections TO customize:
+- **Workflow Orchestration** — Adapt to your personal working style
+- **Task Management** — Adjust templates/locations to fit your system
+- **Core Principles** — Add principles that matter to your team/role
+- **Obsidian Knowledge Base** — Update paths to match YOUR vault structure
+- Remove or add personal preferences not applicable to your team
+
+**Latest version:** Check the `airtable-sa-skills/claude-md/` repository directory for updates.
+
+---
+
+## Workflow Orchestration [CUSTOMIZE]
+
+Adjust these practices to match your personal working style and project complexity thresholds.
+
+### 1. Plan Mode Default
+- Enter plan mode for non-trivial tasks (3+ steps or architectural decisions)
+- If something goes sideways, STOP and re-plan immediately — don't keep pushing
+- Use plan mode for verification steps, not just building
+- Write detailed specs upfront to reduce ambiguity
+
+### 2. Subagent Strategy
+- Use subagents liberally to keep main context window clean
+- Offload research, exploration, and parallel analysis to subagents
+- For complex problems, throw more compute at it via subagents
+- One task per subagent for focused execution
+
+### 3. Self-Improvement Loop
+- After corrections or blockers: capture patterns and learnings
+- Document what worked and what didn't for future reference
+- Build personal decision trees for recurring problem types
+- Review lessons at session start for relevant projects
+
+### 4. Verification Before Done
+- Never mark a task complete without proving it works
+- Compare behavior between before and after when relevant
+- Ask yourself: "Would a senior engineer approve this?"
+- Run tests, check logs, demonstrate correctness
+
+### 5. Demand Elegance (Balanced)
+- For non-trivial changes: pause and ask "is there a more elegant way?"
+- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
+- Skip this for simple, obvious fixes — don't over-engineer
+- Challenge your own work before presenting it
+
+### 6. Autonomous Execution
+- When given a problem: investigate and resolve it without hand-holding
+- Point at logs, errors, failing tests — then fix them
+- Minimize context-switching required from the customer/team
+- Proactively handle common blockers (missing permissions, environment setup, etc.)
+
+## Task Management [CUSTOMIZE]
+
+Adapt this workflow to your personal organization system (Obsidian, linear notes, todo app, etc.)
+
+1. **Plan First:** Write plan with checkable items before starting
+2. **Verify Plan:** Check in before starting implementation (especially for complex work)
+3. **Track Progress:** Mark items complete as you go
+4. **Explain Changes:** High-level summary at each step
+5. **Document Results:** Summarize what was built and any decisions made
+6. **Capture Lessons:** Document patterns and learnings for future reference
+
+## Core Principles [CUSTOMIZE]
+
+These are baseline principles—extend with values important to your team or personal practice:
+
+- **Simplicity First:** Make every change as simple as possible. Minimize code impact.
+- **No Laziness:** Find root causes. No temporary fixes. Senior engineer standards.
+- **Minimal Impact:** Changes should only touch what's necessary. Avoid introducing bugs.
+- **Documentation Debt:** Leave the system clearer than you found it.
+- **Communication:** Be explicit about tradeoffs, blockers, and decisions.
+
+## Skill Creation Requirements
+
+When creating or updating Cowork skills (SKILL.md files), ALWAYS include YAML frontmatter at the top of the file. This is required by Cowork for skill registration and triggering.
+
+### Required Format
+
+```markdown
+---
+name: skill-name-in-kebab-case
+description: "A detailed description of when this skill should trigger. Include specific keywords, phrases, and use cases that should activate the skill. This description is what Cowork uses to match user requests to skills — make it thorough."
+---
+
+# Skill Title
+
+Rest of the skill instructions...
+```
+
+### Frontmatter Rules
+
+1. **`name`** (required) — kebab-case identifier matching the folder name (e.g., `workflow-doc`, `technical-design-doc`)
+2. **`description`** (required) — a single string (in quotes) describing:
+   - What the skill does (1 sentence)
+   - When to use it (trigger conditions)
+   - Specific trigger keywords/phrases the user might say
+   - What it outputs (format, sections, etc.)
+3. **No other fields required** — `license` is optional
+4. **The `---` delimiters are mandatory** — without them, Cowork rejects the upload
+
+### Skill Folder Structure
+
+```
+skill-name/
+└── SKILL.md          # Must contain YAML frontmatter + full instructions
+```
+
+The folder name becomes the skill identifier and should match the `name` field in the frontmatter.
+
+## Skill Delivery & Installation
+
+When producing `.skill` files for users to install:
+
+1. **Package**: Use validation tools to ensure proper structure and YAML formatting
+2. **Deliver**: Use the appropriate delivery mechanism in your platform (Cowork UI button, email, Slack, etc.)
+3. **Never** require users to run CLI commands — platform handles installation automatically
+4. **Never** point users to raw file paths — always use platform delivery methods
+5. **Skill directory permissions**: Read-only in most contexts — copy to temp, edit, repackage before delivery
+
+### General Skill Update Workflow
+```
+Copy to temp location → ensure write permissions → edit SKILL.md → validate → package → deliver
+```
+
+## Document Generation Rules
+
+### Language & Tone
+- Never reference "transcripts", "call recordings", "meeting notes", "auto-generated", or any language that reveals the source material or generation process in customer-facing output
+- Documents should read as if the SA authored them directly
+- State observations as facts, not citations
+- Use active voice and direct language
+
+### Print CSS (Landscape PDF)
+- Always include `@page { size: landscape; margin: 0.4in 0.5in; }`
+- Use `-webkit-print-color-adjust: exact` for color preservation
+- Protect leaf nodes with `break-inside: avoid`, let tall containers break with `break-inside: auto`
+- Never use `page-break-before: always` or `page-break-after: always` on sections — causes empty pages
+- Switch grid layouts to `display: block !important` in print when containers are too tall for one page
+
+### Brand Theming
+- Always search for customer brand colors first — respect their visual identity
+- Fall back to Airtable brand colors if not found:
+  - Primary Blue: `#2D7FF9`
+  - Accent Yellow: `#FCB400`
+  - Secondary Teal: `#18BFFF`
+  - Accent Pink: `#FF08C2`
+  - Error Red: `#EF3061`
+- Maintain accessibility standards in color choices (WCAG AA minimum contrast)
+
+## Obsidian Knowledge Base — Session Bootstrap Protocol [CUSTOMIZE]
+
+When your Obsidian vault is mounted as the working directory, follow this general protocol. **Customize the paths and structure to match YOUR vault.**
+
+### Bootstrap Sequence
+1. **Read context file** — Read your primary briefing file (context, active projects, recent decisions)
+2. **Read preferences file** — Check your personal working patterns, naming conventions, preferences
+3. **Scan recent work** — Check the most recent daily/weekly notes to understand current state
+4. **Load project context on demand** — When a specific project is referenced, read its full history
+
+### Session End Protocol
+When wrapping up a session or switching topics, do ALL of the following:
+1. **Update the project log** — Append a new session block with date, summary, decisions, and next steps
+2. **Update daily/weekly notes** — Add entries linking to the project(s) worked on
+3. **Refresh context file** — Update active project statuses, decisions, and pending work
+4. **Create decision records** — If significant decisions were made, capture them in a decision log and link from project logs
+
+### Vault Structure Reference [CUSTOMIZE]
+Adapt this to your personal vault structure:
+```
+Your Vault/
+├── 00 - Inbox/              # Quick capture, unsorted notes
+├── 01 - Projects/           # One note per project (running session logs)
+├── 02 - Clients/            # One note per client (relationship context)
+├── 03 - Daily/              # Daily index notes (what was worked on)
+├── 04 - Decisions/          # Standalone decision records (atomic, linkable)
+├── 05 - Working Memory/     # AI context files (bootstrap, preferences)
+│   ├── _context.md          # Session bootstrap — read FIRST every session
+│   └── _preferences.md      # Your patterns, style, recurring instructions
+└── Templates/               # Note templates for consistent structure
+```
+
+### Note Format Convention
+- YAML frontmatter for structured metadata (parseable by Dataview and tools)
+- `[[wikilinks]]` for graph connectivity — use liberally
+- XML blocks (`<session>`, `<decisions>`, `<next_steps>`) for structured session data
+- Wikilinks INSIDE XML blocks so both graph and structured parsing work
+- Tags (#project, #client, #decision, #in-progress, #completed) for filtering
+
+---
+
+## Skill Routing
+
+Use this table to identify the right skill for a task. Skills contain specialized best practices and templates that produce significantly better output than working without them.
+
+### IMPORTANT: When to invoke vs. when NOT to invoke
+
+**Document/deliverable skills** (workflow-doc, technical-design-doc, training-guide, health-check, docx, pptx, xlsx, pdf) should ONLY be invoked when the user is **explicitly asking for a document or file as output**. Do NOT invoke these during interactive work like designing schemas, building automations, brainstorming, or debugging — even if the conversation touches on related concepts like "workflow" or "data model."
+
+**Interactive/advisory skills** (airtable-design-advisor, automation-architect, ai-prompt-builder) should be invoked when the user is **working through a problem interactively** — designing, reviewing, deciding, debugging.
+
+### Interactive Skills (invoke during active work)
+
+- `airtable-design-advisor` → design review, schema review, linking strategy, "will this scale", architecture tradeoffs, "how should I structure this", evaluating a proposed data model or automation pattern before building
+- `automation-architect` → design automations, automation spec, automation logic, conditional logic, repeating group, "what automations do we need", debug automation structural issues. Use when DESIGNING or DEBUGGING automations — not when documenting them after the fact
+- `ai-prompt-builder` → write the prompt for an AI step, generate a prompt, AI action prompt, structured data prompt. Use when an automation spec has AI steps and the user needs the actual prompt content — not just the step description. Also invoke proactively when automation-architect produces a spec with AI steps and the next logical step is writing the prompts
+
+### Document Deliverable Skills (invoke ONLY when a document is explicitly requested)
+
+**Airtable SA deliverables:**
+- `workflow-doc` → user explicitly asks for: workflow doc, workflow document, user stories doc, ERD document, or to turn discovery call notes / transcript into a formal deliverable
+- `technical-design-doc` → user explicitly asks to: document a completed base, create a TDD, generate architecture docs, produce system documentation for a built application
+- `training-guide` → user explicitly asks for: training guide, training materials, user guide, onboarding doc, how-to guide — or provides VTT/SRT/Loom content and asks for user-facing documentation
+- `health-check` → user explicitly asks for: health check report, risk assessment document, base audit report, production readiness assessment
+
+**File format skills:**
+- `docx` → user asks for a .docx / Word doc / SOW / memo / letter / report as Word file
+- `pptx` → user asks for .pptx / slides / deck / presentation / pitch deck
+- `xlsx` → user asks for .xlsx / spreadsheet / CSV cleanup / data table / budget model
+- `pdf` → user asks to work with .pdf files: merge, split, OCR, watermark, encrypt, extract, create
+
+### Learning & Session Skills (invoke at session boundaries or during learning builds)
+
+- `learning-loop` → TWO MODES. **Brief mode** (session start): "brief me", "what am I learning today", "learning objectives", starting a UC or learning build. **Reflect mode** (session end): "retro", "what did I learn", "retrospective", "lesson extractor", "skill adaptations", "what did we discover". Invoke at the start AND end of learning-type engagement sessions.
+- `session-wrapup` → "wrap up", "end session", "save context", "done for now", "that's it for today", "close out", "let's stop here". Fires on ANY session type — engagement, learning, or ad hoc. Handles the 4-step vault update protocol.
+- `customer-scenario-generator` → "give me a scenario", "create a customer story", "fictional company", "demo scenario", "frame this as a customer", "workshop scenario". Use when the user needs a realistic customer framing for a learning exercise, demo, or pattern exploration. Produces narrative + schema skeleton.
+
+### Workflow & Meta Skills
+
+- `review` → daily review, weekly review, monthly review, EOD, "what did I do today", wrap up the day, recap
+- `schedule` → "schedule this", "run this every day", "remind me", "every Monday", "at 9am", save as repeatable task
+- `scaffold-extension` → new extension project, scaffold project, new repo, custom extension for a customer
+- `skill-creator` → create a new skill, improve/optimize an existing skill, run skill evals
+
+### Disambiguation Rules
+
+When patterns overlap, use these rules:
+- "workflow" in conversation about designing/building → do NOT invoke workflow-doc; stay interactive
+- "workflow" + "create the doc" / "generate the deliverable" → invoke workflow-doc
+- "automations" + designing/building them → `automation-architect`
+- "automations" + documenting a completed base → `technical-design-doc`
+- "user guide" + teaching end users → `training-guide`
+- "user guide" + architecture documentation → `technical-design-doc`
+- "design" + evaluating tradeoffs → `airtable-design-advisor`
+- "design" + "create the design doc" → `technical-design-doc`
+- "audit" + base health/performance → `health-check`
+- "audit" + design decisions → `airtable-design-advisor`
+- "report" + Word/.docx → `docx`
+- "report" + data/tables/charts → `xlsx`
+- "prompt" + designing automation AI steps → `ai-prompt-builder`
+- "prompt" + general prompt engineering discussion → stay interactive, no skill
+- automation spec has AI steps + user asks "now write the prompts" → `ai-prompt-builder`
+- "wrap up" + end of work session → `session-wrapup`
+- "wrap up" + "wrap up the day" / "what did I do" → `review` (summarizes across sources, not just this session)
+- "scenario" + learning/demo/workshop context → `customer-scenario-generator`
+- "scenario" + existing customer engagement → stay interactive, no skill (real customers don't need fictional scenarios)
+- session start + learning build → `learning-loop` (brief mode) — invoke proactively
+- session end + learning build + "what did I learn" → `learning-loop` (reflect mode)
+- "retro" + general session end → `learning-loop` reflect if learning build, otherwise `session-wrapup`
+
+### Skills NOT to invoke directly (dependencies)
+
+These are shared libraries read by other skills — never invoke them via the Skill tool:
+- `doc-css-framework`, `structured-input`, `base-metadata-extractor`, `airtable-design-principles`, `file-input-schema`

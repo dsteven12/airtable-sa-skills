@@ -1,0 +1,15 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Obsidian
+.obsidian/
+
+# Cowork temp files
+.cowork/
+
+# Skill packages (binary)
+*.skill
+
+# Temp archives
+zi*

@@ -1,11 +1,11 @@
 ---
 name: session-wrapup
-description: "Automate the end-of-session protocol for the current Cowork session — updates the project log, refreshes the daily note, syncs _context.md, and creates decision records. Adapts output by session type: engagement, learning, or ad hoc. Use ONLY when the user signals they are done working in this session — phrases like 'wrap up the session', 'save context', 'done for now', 'let's stop here', 'close out', 'that's it for today', 'I think we're good'. Do NOT trigger on 'wrap up' used in other contexts like 'wrap up this discussion' or 'let's wrap up the data model'. Do NOT use when the user asks to review past work — that is the review skill."
+description: "Automate the end-of-session protocol for the current Cowork session — updates the project log, refreshes the daily note, syncs _context.md, creates decision records, auto-captures corrections to lessons.md, updates the cross-project pattern index, and conditionally refreshes _preferences.md. Adapts output by session type: engagement, learning, or ad hoc. Use ONLY when the user signals they are done working in this session — phrases like 'wrap up the session', 'save context', 'done for now', 'let's stop here', 'close out', 'that's it for today', 'I think we're good'. Do NOT trigger on 'wrap up' used in other contexts like 'wrap up this discussion' or 'let's wrap up the data model'. Do NOT use when the user asks to review past work — that is the review skill."
 ---
 
 # Session Wrapup
 
-Automate the 4-step end-of-session protocol that keeps the Obsidian vault current and ensures the next session starts warm instead of cold.
+Automate the 8-step end-of-session protocol that keeps the Obsidian vault current and ensures the next session starts warm instead of cold.
 
 Every Cowork session produces context that's valuable to future sessions — decisions made, things built, platform constraints discovered, next steps identified. Without a structured wrapup, this context evaporates when the session ends. This skill captures it systematically so the bootstrap protocol (`_context.md` → daily note → project note) works.
 
@@ -34,6 +34,8 @@ Extract:
 - **Discoveries**: Platform constraints, unexpected behaviors, things that didn't work as expected
 - **Next steps**: What should happen in the next session — specific, not vague
 - **Skill impacts**: Any skill gaps identified, adaptations needed, or new skill ideas
+- **Corrections**: Moments where the user pushed back, redirected, or corrected Claude's approach (for Step 6)
+- **Reusable patterns**: Architectural patterns, platform workarounds, or automation recipes that transcend this specific project (for Step 7)
 
 ## Step 2: Update the Project Log
 
@@ -181,7 +183,10 @@ The steps above have dependencies:
 1. **Scan the session** (always first — needed for everything else)
 2. **Update project log** and **daily note** (independent — can happen in parallel)
 3. **Refresh _context.md** (depends on project log being written, since it references session state)
-4. **Decision records** (independent, but last since it's conditional)
+4. **Decision records** (independent, but conditional)
+5. **Auto-capture corrections** → lessons.md (depends on Step 1 scan; independent of Steps 2-4)
+6. **Update pattern index** → _patterns.md (depends on Step 1 scan; independent of Steps 2-5)
+7. **Refresh _preferences.md** (depends on Step 6 corrections; conditional — only if new preferences found)
 
 ## Handling Edge Cases
 
@@ -194,6 +199,83 @@ The steps above have dependencies:
 **User asks to wrap up mid-session**: Honor it. Capture what's been done so far and note that the session was paused, not completed.
 
 **Conflicting next steps**: If the session surfaced competing priorities, present them in the next steps and let the user decide ordering — don't pick for them.
+
+## Step 6: Auto-Capture Corrections → lessons.md
+
+Scan the session transcript for correction patterns — moments where the user pushed back, redirected, or explicitly corrected Claude's approach. These are high-signal learning moments that should persist in `tasks/lessons.md` without requiring the user to manually author them.
+
+### What Counts as a Correction
+
+| Signal | Example |
+|--------|---------|
+| Explicit redirect | "No, do X instead", "That's not right", "Actually..." |
+| Pushback on approach | "That's too complex", "We don't need that", "Simpler" |
+| Platform constraint discovered | "That doesn't work in Airtable because...", "The API doesn't support..." |
+| Repeated instruction | Same guidance given twice = the first time wasn't captured |
+| User does it themselves after asking Claude | Claude's output was wrong/insufficient, user rewrote it |
+
+### What Does NOT Count
+
+- Normal back-and-forth clarification (questions ≠ corrections)
+- User changing their mind (preference shift ≠ mistake)
+- User adding detail to an underspecified request
+
+### Capture Format
+
+For each correction found, append to the appropriate section in `tasks/lessons.md`:
+
+```markdown
+- **[Short pattern title].** [What went wrong] → [What the correct behavior is]. [generated]
+```
+
+The `[generated]` tag marks auto-captured entries so the user can review and promote (remove the tag) or delete them. Never modify existing entries in lessons.md — append only.
+
+### Deduplication
+
+Before appending, scan existing lessons.md entries for semantic overlap. If a correction matches an existing lesson (same root cause, even if different wording), skip it. If it's a *refinement* of an existing lesson (adds nuance), append it as a separate entry with a reference: "See also: [existing lesson title]".
+
+## Step 7: Update Cross-Project Pattern Index
+
+If the session produced reusable patterns — architectural decisions, platform workarounds, automation recipes, or prompt strategies that would apply beyond this specific project — append them to `05 - Cowork/_patterns.md`.
+
+### What Qualifies as a Cross-Project Pattern
+
+- Airtable platform constraints that affect any build (e.g., "Count field 'is any of' replaces counter Script")
+- Automation architecture patterns (e.g., "Generate Structured Data → Repeating Group → Create Record")
+- Prompt engineering techniques validated through testing
+- Design patterns with named tradeoffs (e.g., "Pattern A vs B for translation pipelines")
+
+### What Does NOT Qualify
+
+- Project-specific decisions (e.g., "Sélene Beauty uses 4 languages") — these stay in the project note
+- Untested hypotheses — only patterns validated through actual builds
+- One-time fixes — only recurring patterns
+
+### Pattern Entry Format
+
+```markdown
+### [Pattern Name]
+- **Domain**: [automation | schema | prompt | agent | extension]
+- **Source**: [[Project Name]] — Session N
+- **Pattern**: [1-2 sentence description of the pattern]
+- **When to use**: [Trigger condition — when would you reach for this?]
+- **Tradeoff**: [What you gain vs. what you give up]
+```
+
+Append to the appropriate domain section in `_patterns.md`. If the section doesn't exist, create it.
+
+## Step 8: Refresh _preferences.md (When Warranted)
+
+If the session revealed new working preferences — communication style corrections, naming convention updates, tool preferences, or recurring failure modes — update `05 - Cowork/_preferences.md`.
+
+### Trigger Conditions
+
+Only update preferences when:
+- A failure pattern occurred that should load as a preventive constraint next time (add to "Recurring Output Failures")
+- the user explicitly stated a preference that isn't captured yet
+- A correction from Step 6 reveals a systemic preference (not a one-off mistake)
+
+Do NOT update preferences for every session — only when genuinely new preference signal exists.
 
 ## What This Skill Does NOT Do
 

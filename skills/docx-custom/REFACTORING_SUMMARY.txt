@@ -1,0 +1,45 @@
+DOCX SKILL REFACTORING SUMMARY
+==============================
+
+OBJECTIVE: Reduce SKILL.md from 590 lines to under 500 lines
+
+RESULTS:
+--------
+Original SKILL.md:  590 lines
+Refactored SKILL.md: 462 lines
+Reduction: 128 lines (21.7% reduction)
+Status: COMPLETE - Well under 500 line target
+
+CHANGES MADE:
+-------------
+
+1. MOVED XML REFERENCE SECTION (lines ~456-581 → references/xml-reference.md)
+   - Created /tmp/audit-2026-03-18/docx/references/ directory
+   - Moved Schema Compliance, Tracked Changes, Comments, and Images XML patterns
+   - New file: references/xml-reference.md (126 lines)
+   - SKILL.md now references it with brief pointer
+
+2. SOFTENED HEAVY DIRECTIVE LANGUAGE
+   - Replaced "CRITICAL:" callouts with explanatory phrases
+   - Changed "NEVER" directives to describe consequences
+   - Examples of softened language:
+     * "CRITICAL: docx-js defaults to A4" → "docx-js defaults to A4, not US Letter — always set explicitly"
+     * "NEVER use unicode bullets" → "Do not manually insert bullet characters — use numbering configuration"
+     * "CRITICAL: type parameter is REQUIRED" → "type parameter is required — omitting causes silent failure"
+     * "CRITICAL: PageBreak must be inside a Paragraph" → "PageBreak must be inside a Paragraph — standalone creates invalid XML"
+
+3. CONDENSED DEPENDENCIES SECTION
+   - Removed implementation details
+   - Kept essential tool names and purposes only
+   - Brevity: 4 lines instead of detailed descriptions
+
+KEY SECTIONS RETAINED:
+- Quick Reference (troubleshooting table)
+- Creating New Documents (with all code examples)
+- Editing Existing Documents (unpack/edit/pack workflow)
+- Key Rules for docx-js (critical patterns, less aggressive tone)
+
+ACCESSIBILITY IMPROVEMENTS:
+- Readers needing XML reference details can check references/xml-reference.md
+- Softer language maintains professionalism while being less prescriptive
+- Line count reduction makes the main document more scannable

@@ -1,6 +1,6 @@
 ---
 name: solution-hub
-description: "Populate an Airtable Solution Hub base from engagement transcripts, meeting notes, SOWs, or architecture docs. Extracts structured records across 10 areas (Project, People, Timeline, Definitions, PBOs, Risks, Decisions, User Personas, Updates, Action Items), presents for review, then writes via MCP. MANDATORY TRIGGERS: solution hub, populate solution hub, populate the hub, extract from transcript, hub population, fill in the solution hub, update the solution hub, add to solution hub, sync to hub, log this call, process this transcript. ALWAYS invoke when the user provides a transcript, notes, SOW, or engagement input and wants extracted data written to a Solution Hub base — even if they just say 'here's the transcript' or 'log this to the hub'. Also invoke to review or update existing Hub records from new information. Do NOT invoke for schema design (airtable-design-advisor) or workflow documents (workflow-doc)."
+description: "Populate an Airtable Solution Hub base from engagement transcripts, meeting notes, SOWs, or architecture docs. Extracts structured records across 11 areas (Project, People, Timeline, Definitions, PBOs, Risks, Decisions, User Personas, Meetings, Updates, Action Items), reviews with the SA, then writes via MCP. For transcript/meeting-notes inputs, ALWAYS creates BOTH a Meeting record (rich Notes + transcript + Gong link + linked attendees) AND an Update record (status, type, notes) — never skipped. TRIGGERS: solution hub, populate solution hub, extract from transcript, hub population, update the solution hub, log this call, process this transcript, sync to hub. Invoke when the user provides a transcript, notes, SOW, or engagement input and wants extracted data written to a Solution Hub base — even if they just say 'here's the transcript' or 'log this call'. Also for incremental updates of existing Hub records. Do NOT invoke for schema design (airtable-design-advisor) or workflow documents (workflow-doc)."
 ---
 
 # Solution Hub Population
@@ -23,13 +23,54 @@ This skill automates the extraction and writing while keeping the SA in the loop
 - `create_records_for_table` — batch create (up to 10 per call)
 - `update_records_for_table` — update existing records
 
+## Mandatory Outputs (Transcript / Meeting-Notes Inputs)
+
+When the input is a call transcript, meeting notes, sync recap, or any time-stamped engagement input, **every run MUST produce both** of the following — this is non-negotiable:
+
+1. **A Meeting record** in the Meetings table with:
+   - The Gong/recording link (Call Link – Customer facing)
+   - The full transcript pasted into the Call transcript field
+   - A custom meeting name following the `Topic 1 | Topic 2 | Topic 3` convention
+   - Linked attendees (including the SA — see People extraction rules)
+   - Linked Build/Project record
+   - **A rich Notes field** that summarizes what was covered, key issues addressed and resolutions, learnings reinforced, and explicit next steps. The Notes field is the human-readable record of the call — do NOT leave it sparse or skip it. Treat it as the deliverable a teammate would read instead of re-watching the call.
+
+2. **An Update record** in the Updates table with:
+   - Status (🟢 / 🟡 / 🔴 — match the prior update's trajectory unless something changed)
+   - Update type = "Project Update" (default for sync/working sessions)
+   - Created Date matching the meeting date
+   - Linked Build/Project record
+   - **A rich Notes field** that mirrors the Meeting Notes but condensed for stakeholder/leadership consumption — lead with adoption/sentiment when relevant, then key resolutions, then next steps.
+
+**Why both:** The Meeting record is the working artifact for the project team (full context, transcript, attendees). The Update record is the leadership/exec-facing rollup that flows into status reports and dashboards. Skipping either one breaks downstream consumers — the SA loses traceability and the AE/CSM/leadership lose the status feed.
+
+If a transcript is provided and you only create one of these, you have not completed the task. Always create both before reporting completion.
+
+For non-transcript inputs (SOW, architecture doc, requirements doc), the Meeting record is not required, but an Update record is still encouraged when the input represents a meaningful engagement event.
+
 ## Process Overview
 
-The workflow has four phases. Never skip the Review phase — the SA must approve all records before they're written.
+The workflow has five phases. Never skip the Review phase — the SA must approve all records before they're written.
 
 ```
-Discover → Extract → Review → Write
+Discover → Collect Missing Info → Extract → Review → Write
 ```
+
+### Phase 0.5: Collect Missing Meeting Information
+
+**Before extracting records**, check whether the user has provided everything needed for a complete Meeting record. If any of the following are missing, prompt the user before proceeding:
+
+1. **Call Link (Gong link)** — The URL to the call recording (e.g., Gong, Zoom, or other recording platform). This populates the "Call Link - Customer facing" field on the Meetings table.
+2. **Call Transcript** — The full transcript text. If the user provided a transcript inline, use it. If they only provided notes or a summary, ask if they have the raw transcript available. This populates the "Call transcript" field.
+3. **Custom Meeting Name** — A short, focused name highlighting the 2-4 key areas emphasized during the call. This drives the auto-generated meeting Name formula. Examples: "Automation Validation & Deep Dive | Interface Consolidation Strategy | Cutover Planning & Re-migration". Ask the user what the main focus areas were, or suggest them based on the transcript content.
+
+**Prompt format:**
+> Before I extract records, I want to make sure the Meeting record is complete. Can you provide:
+> - **Gong/call recording link** (if available)
+> - **Full transcript** (if not already provided)
+> - **Key focus areas** for the custom meeting name (or I can suggest based on the transcript)
+
+If the user says they don't have one of these, proceed without it — but always ask first.
 
 ### Phase 0: Discover the Base
 
@@ -37,15 +78,16 @@ Discover → Extract → Review → Write
 2. **Fetch all table schemas.** Call `list_tables_for_base`, then `get_table_schema` for each of the 10 core tables. Cache the results — you'll need field IDs, singleSelect options, and linked record table IDs throughout.
 3. **Scan for existing records.** For each core table, call `list_records_for_table` filtered to the current project. This is your dedup baseline.
 
-The 10 core tables (names may vary slightly across template versions):
-- Project
+The 11 core tables (names may vary slightly across template versions):
+- Project (sometimes "Builds")
 - People
-- Timeline (Tasks, Milestones & Meetings)
+- Timeline (Tasks, Milestones)
 - Definitions
 - Positive Business Outcomes
 - Risks & Change Impacts
 - Decisions
 - User personas
+- Meetings
 - Updates
 - Action items
 
@@ -108,7 +150,11 @@ If the user wants to skip review for a specific table (e.g., "definitions look g
 After approval, write records in this order:
 1. **Project** — update the existing record
 2. **People** — create new people, note their record IDs
-3. **All other tables** — use batch creates (up to 10 records per `create_records_for_table` call)
+3. **Meeting record** — create FIRST among non-people records so its record ID is available for Action Item linking. Required when input is a transcript or meeting notes.
+4. **Update record** — required when input is a transcript or meeting notes. Use the Meeting record ID is not needed here, but the Build link is.
+5. **All other tables** (Action Items, Timeline, Definitions, PBOs, Risks, Decisions, User Personas) — use batch creates (up to 10 records per `create_records_for_table` call). Action Items should link to the Meeting record created in step 3.
+
+**Completion check before reporting done:** Verify both the Meeting record AND the Update record were created if a transcript or meeting notes were the input. If either is missing, fix it before declaring completion. A summary table of records created per table makes the missing-record case obvious — always include this in the completion report.
 
 **Critical format rules** (the Airtable MCP is strict about these):
 - **multipleRecordLinks**: Plain string arrays → `["recXXX"]`, NOT `[{"id": "recXXX"}]`

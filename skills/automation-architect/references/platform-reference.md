@@ -306,6 +306,28 @@ Record ID is not available as a filterable field in the Find Records conditions 
 **4. Find Records results require Repeating Group for linked record field writes.**
 Update Record may not reliably consume a Find Records result to set a linked record field via direct token reference. The standard pattern: Find Records → Repeating Group → Update Record inside the loop. With Max records = 1, the loop executes exactly once. With 0 results, it skips (correct behavior for "no match found").
 
+**5. lastModifiedBy / lastModifiedTime fields as trigger tokens.**
+When a trigger record has lastModifiedBy or lastModifiedTime fields (especially ones configured to watch a specific field like Status), referencing them via `{{Trigger: Field Name}}` in a downstream Update Record action often fails to write correctly into collaborator or date fields. The token picker may expose only sub-fields (Name, Email, ID for lastModifiedBy) that aren't valid inputs for a collaborator-field write, or the picker may not connect the value at all. This is the common blocker for "capture the approver into a stable Approved By field" patterns.
+
+**Workarounds:**
+- **Use a Run Script as the first action.** Scripts read lastModifiedBy via `record.getCellValue(fieldName)` (returns a `{id, name, email}` collaborator object) and lastModifiedTime as an ISO string. These values can be written directly to collaborator/date fields via `updateRecordAsync` without token-picker limitations.
+- **Trigger from a Button field with the "User who took action" token.** Button triggers expose this special token (`{id, name, email}`) directly — no lastModifiedBy capture needed. Best fit when the state change is explicitly user-initiated.
+
+**Standard "capture and preserve" pattern (state-machine workflows with audit fields):**
+```
+[1] RUN SCRIPT
+    Input: cycleId = {{Trigger: Record ID}}
+    Logic:
+      - cycle.getCellValue("Status Changed By")   → collaborator object
+      - cycle.getCellValue("Status Changed Time") → ISO string
+      - updateRecordAsync(cycleId, {
+          "Approved By":  collaboratorObject,
+          "Approved At":  isoTimestampString,
+          "Status":       { name: "Sending" }    // transition off the trigger condition
+        })
+```
+This pattern shows up whenever an automation needs to (a) freeze the human approver's identity before subsequent automation steps overwrite the lastModified fields, and (b) transition state to break the trigger condition (double-trigger guard).
+
 **Impact on automation design:**
 These limitations are the primary reason to consolidate automations (keep data access within the automation that already has the tokens) and to use Script actions when the token picker cannot provide the data path you need. Always verify token availability in the builder before committing to a cross-table automation design.
 

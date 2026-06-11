@@ -19,6 +19,17 @@ Generate a branded, print-ready HTML technical design document for a completed A
 
 Input parsing rules are in `structured-input`. The CSS guide is in `doc-css-framework/SKILL.md` and the CSS code is in `doc-css-framework/references/css-components.md`. Data extraction logic is in `base-metadata-extractor`. Design principles are in `airtable-design-principles`. Automation structural specs and format are in `automation-architect`. This skill only defines the **section structure, content organization, and document-specific patterns**.
 
+### Compaction-Resilient Correction Mode
+
+The dependency reads above are for INITIAL generation only. When correcting an already-generated artifact:
+
+1. **Re-read your own output file** (the HTML you already generated) — the CSS framework, component patterns, and brand colors are already embedded in it
+2. **Do NOT re-read the dependency skill files** listed above — they are already incorporated in your output
+3. **Use the Edit tool for targeted fixes** — do not regenerate the entire document
+4. **After 3 correction rounds**, recommend switching to a fresh subagent with just the artifact + corrections
+
+This prevents re-read loops when auto-compaction strips earlier Read tool outputs from conversation memory.
+
 ## Input Types
 
 This skill accepts any combination of:
@@ -312,15 +323,15 @@ After the user prints to PDF, offer to review the output for common issues:
 
 ## Example Usage
 
-**User says:** "Here's the workflow doc we approved and the base is called 'Hilton Task Management'. Generate the technical design doc."
+**User says:** "Here's the workflow doc we approved and the base is called 'Acme Corp Task Management'. Generate the technical design doc."
 **Skill does:**
 1. Reads `structured-input/SKILL.md` for the input parsing protocol
 2. Reads `doc-css-framework/SKILL.md` for the shared CSS framework
 3. Reads `base-metadata-extractor/SKILL.md` for extraction logic
-4. Normalizes input (per structured-input protocol) — infers client: "Hilton", base_id: null
+4. Normalizes input (per structured-input protocol) — infers client: "Acme Corp", base_id: null
 5. Asks clarifying questions (confirms customer name, personas, interfaces/automations extraction)
 4. Reads the workflow doc HTML
-5. Uses Airtable MCP: `search_bases("Hilton Task Management")` → `list_tables_for_base(baseId)` → `get_table_schema` for detailed field configs
+5. Uses Airtable MCP: `search_bases("Acme Corp Task Management")` → `list_tables_for_base(baseId)` → `get_table_schema` for detailed field configs
 6. Provides the user with automation + interface extraction scripts from `base-metadata-extractor`
 7. Waits for user to paste the extraction results
 8. Reconciles all data sources
@@ -331,14 +342,14 @@ After the user prints to PDF, offer to review the output for common issues:
 ## Output Checklist
 
 Before presenting the file, verify:
-- [ ] `airtable-design-principles/SKILL.md` was read before the Reconcile step
+- [ ] `airtable-design-principles/SKILL.md` was read before INITIAL generation (skip on correction passes — design principles are embedded in artifact)
 - [ ] Design principles pass completed using inspection thresholds (absolute counts from MCP data)
 - [ ] Risk flags, linking mismatches, and naming violations documented in Appendix Section 8
 - [ ] No risk content polluting the main body sections (body stays clean; Appendix holds the assessment)
-- [ ] `structured-input/SKILL.md` was read before input parsing
+- [ ] `structured-input/SKILL.md` was read before INITIAL generation (skip on correction passes — normalization is embedded in artifact)
 - [ ] Input was normalized into the canonical object (Step 0) per structured-input protocol
-- [ ] `doc-css-framework/SKILL.md` was read before generating HTML
-- [ ] `base-metadata-extractor/SKILL.md` was read before extracting data
+- [ ] `doc-css-framework/SKILL.md` was read before INITIAL generation (skip on correction passes — CSS framework is embedded in artifact)
+- [ ] `base-metadata-extractor/SKILL.md` was read before INITIAL generation (skip on correction passes — extraction logic is embedded in artifact)
 - [ ] Clarifying questions asked only for fields not already provided via structured input
 - [ ] Schema extracted via MCP (`list_tables_for_base` + `get_table_schema`)
 - [ ] Automation extraction script offered and results received (or noted as schema-inferred)
@@ -359,6 +370,6 @@ Before presenting the file, verify:
 - [ ] No `page-break-before: always` on any `.section` element
 - [ ] Grid-to-inline-block conversion applied for persona, module, and detail grids in print CSS
 - [ ] ERD grid uses `repeat(3, 1fr)` in print (NOT converted to block)
-- [ ] All cards use both `break-inside: avoid !important` AND `page-break-inside: avoid !important`
+- [ ] All cards use both `break-inside: avoid !important` AND `page-page-inside: avoid !important`
 - [ ] File saved to the Cowork workspace folder (not `/mnt/outputs/` — that path does not exist)
 - [ ] User reviewed printed PDF output before delivery

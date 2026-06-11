@@ -54,23 +54,28 @@ The framework uses CSS custom properties for all brand-sensitive values. The var
 
 ### Typography Variables
 
-The framework uses a split font pairing system. These are the defaults — do not change them unless specifically requested:
+The framework uses an **Inter Tight + Inter** pairing — editorial, modern, designed for dense informational layouts. Inter Tight is a slightly tighter-tracked sister of Inter, used for display headlines and section titles; Inter handles body and labels. These are the defaults — do not change them unless specifically requested:
 
-- `--font-heading` — **Plus Jakarta Sans** (geometric, clean, modern)
-- `--font-body` — **Sora** (clean, slightly rounded sans-serif with natural warmth)
-- `--heading-weight` — `500` (medium — intentionally light for a modern editorial feel)
-- `--heading-spacing` — `0em` (default letter-spacing)
+- `--font-display` — **Inter Tight** (used for `.display-h1`, `.display-h2` — large editorial-app headlines)
+- `--font-heading` — **Inter Tight** (section titles, card titles, anything `h1`–`h4`)
+- `--font-body` — **Inter** (body, labels, descriptions, badges)
+- `--heading-weight` — `700` (heavy — gives the editorial-app weight contrast)
+- `--heading-spacing` — `-0.01em` (slightly tightened tracking on headings)
+- `--display-weight` — `700` (matches heading by default; can go to 800 for extra impact)
+- `--display-spacing` — `-0.025em` (tighter tracking on display sizes for editorial polish)
+- `--eyebrow-tracking` — `0.12em` (wide tracking for tracked-uppercase eyebrow labels)
 
 **Google Fonts import line** (include in every document's `<head>`):
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 ```
 
 **Usage rules:**
-- All `h1`, `h2`, `h3`, `h4`, `.section-title`, `.story-title`, `.q-cat-title`, card heading elements → `font-family: var(--font-heading); font-weight: var(--heading-weight);`
-- Body, paragraphs, list items, descriptions → inherit from `body { font-family: var(--font-body) }`
-- Structural labels (badges, metric labels, uppercase captions) → keep `font-weight: 600–700` for visual hierarchy, but still use `var(--font-body)`
-- ERD table headers → `font-weight: 600` (slightly heavier than content headings for table contrast)
+- Page-level display headlines (`.display-h1`, `.display-h2`) → `font-family: var(--font-display); font-weight: var(--display-weight);`
+- Section titles, card headings (`h1`, `h2`, `h3`, `h4`, `.section-title`, `.story-title`, `.q-cat-title`) → `font-family: var(--font-heading); font-weight: var(--heading-weight);`
+- Body, paragraphs, list items, descriptions, lede paragraphs → inherit from `body { font-family: var(--font-body) }`
+- Structural labels (badges, metric labels, eyebrows) → use `var(--font-body)` with `font-weight: 600`
+- ERD table headers → `font-weight: 600`
 - Monospace elements (field types, code) → `JetBrains Mono`
 
 All other variables (neutrals, semantic colors, shadows) are constants — copy them unchanged from `references/css-components.md` Section 1.
@@ -107,14 +112,52 @@ When planning the HTML structure of a document, use this table to select the rig
 | Workflow diagram | Workflow card | `.workflow-card` |
 | Data design card | WF data card | `.wfdata-card` |
 | Clarifying questions | Question category | `.q-cat` + `.q-item` |
+| **Discovery (Section 13)** | | |
+| Big editorial headline | Display H1 / H2 | `.display-h1`, `.display-h2`, `.display-lede` |
+| Tracked-caps caption | Eyebrow label | `.eyebrow` (+ `.eyebrow-success` / `.eyebrow-error` / `.eyebrow-primary` / `.eyebrow-accent`) |
+| Tab navigation (interactive on screen) | Tab nav | `.tab-nav` + `.tab-btn` (`.tab-btn--active`) |
+| Tab content section | Tab section | `.tab-section` (auto-paginates in print) |
+| In Scope / Out of Scope two-column | Compare grid | `.compare-grid` + `.compare-col` (`.compare-col--success` / `.compare-col--error`) |
+| Compare line item | Compare item | `.compare-item` + `.compare-item-title` + `.compare-item-desc` |
+| Workflow mix bar | Segmented bar | `.segmented-bar` + `.bar-segment--*` + `.bar-legend` |
+| Matrix presence dot | Dot | `.dot` (`.dot--filled` / `.dot--outlined` / `.dot--ghost`) |
+| Persona-by-phase matrix | Dot matrix | `.dot-matrix` + `.dot-legend` |
+| Pure hairline (no left accent) | Card-clean modifier | `.card-clean` (apply alongside any card class) |
+| Grouped card surface | Section block | `.section-block` + `.section-block-head` |
 
 Full CSS for every component is in `references/css-components.md`.
+
+### Discovery convention: tabs-on-screen / sections-in-print
+
+When a doc uses `.tab-nav`, the printed output flattens to sequential sections — the tab nav widget is hidden in print, and each `.tab-section` becomes its own printed page. Author each tab so its content stands alone:
+
+```html
+<nav class="tab-nav">  <!-- hidden in print -->
+  <button class="tab-btn tab-btn--active">Org</button>
+  <button class="tab-btn">Workflows</button>
+</nav>
+
+<section class="tab-section" data-tab="org">
+  <div class="eyebrow eyebrow-primary">SECTION · ORG</div>
+  <h1 class="display-h1">Editorial org at a glance</h1>
+  <p class="display-lede">…</p>
+  <!-- content -->
+</section>
+
+<section class="tab-section" data-tab="workflows">
+  <div class="eyebrow eyebrow-primary">SECTION · WORKFLOWS</div>
+  <h1 class="display-h1">How the work flows</h1>
+  <!-- content -->
+</section>
+```
+
+The eyebrow + display-h1 inside each section gives it a strong header that survives whether the user is looking at the interactive tab view or a printed PDF page. No JS is required for the print version — sections are visible by default.
 
 ---
 
 ## 4. Print Optimization Principles
 
-The print CSS in `references/css-components.md` Section 7 is the production-ready `@media print` block — copy it in full. Here's the reasoning behind its design, so you can make good decisions when a document has unusual layout needs:
+The print CSS in `references/css-components.md` Section 14 is the production-ready `@media print` block — copy it in full. Here's the reasoning behind its design, so you can make good decisions when a document has unusual layout needs:
 
 **Section flow:** Sections should flow naturally into one another. The only element that gets a forced page break is the cover page (`.doc-header`), which becomes a standalone title page. Adding `page-break-before: always` to section elements creates full blank pages of whitespace — a very common mistake that's hard to spot without printing.
 

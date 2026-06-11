@@ -71,7 +71,7 @@ A message sent, a Slack thread contributed to, or a document drafted does not me
 Use this framework for every item captured:
 - **Deliverable (✅ Complete)**: The thing was created and handed off with no action needed from the user. A doc was sent and accepted. A channel was created and is live. A meeting was scheduled and confirmed.
 - **In Progress (⏳ Pending)**: Work was done but something is still outstanding — waiting on a response, a decision by someone else, customer confirmation, or further refinement. Include specifically what's being waited on.
-- **Context / Contribution**: The user participated in a discussion or provided input, but the output isn't theirs to own (e.g., contributed estimates to someone else's scoping process, weighed in on a thread, attended a meeting).
+- **Context / Contribution**: the user participated in a discussion or provided input, but the output isn't his to own (e.g., contributed estimates to someone else's scoping process, weighed in on a thread, attended a meeting).
 
 Common traps to avoid:
 - A Slack message with information ≠ delivered. If the other party hasn't confirmed or acted, it's still in flight.
@@ -137,7 +137,7 @@ Read all quarterly reviews. This is the performance review draft:
 - First person (the user's voice) for monthly+ cadences
 - Factual and evidence-based for daily/weekly
 - Never reference "transcripts", "AI-generated", "Slack search results", or source mechanics
-- Write as if the user authored this themselves
+- Write as if the user authored this himself
 
 ### Linking
 - Use `[[wikilinks]]` to connect to project notes, client notes, and decision records

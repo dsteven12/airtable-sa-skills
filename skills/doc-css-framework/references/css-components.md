@@ -16,7 +16,8 @@ Complete CSS code blocks for all Airtable documentation components. Copy the ent
 10. [Permissions Matrix](#10-permissions-matrix)
 11. [Appendix Components](#11-appendix-components)
 12. [Workflow-Doc Specific Components](#12-workflow-doc-specific-components)
-13. [Print CSS (Landscape PDF)](#13-print-css-landscape-pdf) ← tested, production-ready block
+13. [Discovery Components](#13-discovery-components) — Display headlines, eyebrows, tab nav, compare grid, segmented bar, dot legend
+14. [Print CSS (Landscape PDF)](#14-print-css-landscape-pdf) ← tested, production-ready block
 
 ---
 
@@ -52,12 +53,21 @@ Replace `--primary`, `--primary-light`, `--primary-dark`, `--accent`, and `--acc
   /* ── Shared Tokens ── */
   --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
   --radius: 8px;
+  --radius-pill: 999px;
+  --eyebrow-tracking: 0.12em;
 
-  /* ── Typography ── */
-  --font-heading: 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Sora', sans-serif;
-  --heading-weight: 500;
-  --heading-spacing: 0em;
+  /* ── Typography ──
+     Inter Tight for display + headings (editorial, modern, slightly tight tracking).
+     Inter for body (clean, neutral, optimized for UI density).
+     Heading weight defaults to 700 for the editorial app feel; use 600 if a doc
+     needs to dial back the visual weight. */
+  --font-display: 'Inter Tight', sans-serif;
+  --font-heading: 'Inter Tight', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --heading-weight: 700;
+  --heading-spacing: -0.01em;
+  --display-weight: 700;
+  --display-spacing: -0.025em;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -213,7 +223,6 @@ Summary statistics displayed as horizontal chips.
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
 }
 .stat-num {
   font-size: 26px;
@@ -246,7 +255,6 @@ Summary statistics displayed as horizontal chips.
   border: 1px solid var(--border);
   border-left: 4px solid var(--primary);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   padding: 16px 20px;
 }
 .persona-card-header {
@@ -292,7 +300,6 @@ Summary statistics displayed as horizontal chips.
   border: 1px solid var(--border);
   border-left: 4px solid var(--accent);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   padding: 16px 20px;
 }
 .module-card h3 { font-family: var(--font-heading); font-size: 15px; font-weight: var(--heading-weight); color: var(--text); margin-bottom: 6px; }
@@ -346,7 +353,6 @@ Note: `.summary-card` is for prose callouts only — not for wrapping question c
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   margin-bottom: 24px;
   overflow: hidden;
 }
@@ -376,7 +382,6 @@ Note: `.summary-card` is for prose callouts only — not for wrapping question c
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   margin-bottom: 20px;
   overflow: hidden;
 }
@@ -402,7 +407,6 @@ Note: `.summary-card` is for prose callouts only — not for wrapping question c
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   margin-bottom: 20px;
   overflow: hidden;
 }
@@ -494,7 +498,7 @@ Shared 2-column detail layout used by automation cards, interface cards, and pag
 ```css
 .erd-container {
   background: var(--bg); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--card-shadow);
+  border-radius: var(--radius);
   padding: 20px; margin-bottom: 24px;
 }
 .erd-grid {
@@ -674,7 +678,6 @@ These components are used by the `workflow-doc` skill (user stories, workflow di
   border: 1px solid var(--border);
   border-left: 4px solid var(--primary);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   padding: 16px 20px;
   margin-bottom: 16px;
 }
@@ -694,7 +697,6 @@ These components are used by the `workflow-doc` skill (user stories, workflow di
   border: 1px solid var(--border);
   border-left: 4px solid var(--primary);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
   padding: 16px 20px;
   margin-bottom: 16px;
 }
@@ -719,7 +721,382 @@ These components are used by the `workflow-doc` skill (user stories, workflow di
 
 ---
 
-## 13. Print CSS (Landscape PDF)
+## 13. Discovery Components
+
+Editorial-app components for discovery decks, scope reviews, and pre-build artifacts. Inspired by the StoryHub discovery aesthetic — generous whitespace, hairline cards, large display headlines, tracked-uppercase eyebrows, and tab-style navigation.
+
+**Tabs-on-screen / sections-in-print convention:** Tab nav widgets are interactive on screen but flatten to sequential sections in print. Author each `tab-section` so its content stands alone as a printed section. The `@media print` block in Section 14 hides the `.tab-nav` widget and forces a page break before each `.tab-section`.
+
+### 13a. Display Headlines
+
+```css
+.display-h1 {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-spacing);
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.display-h2 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-spacing);
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.display-lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 720px;
+  margin-bottom: 32px;
+}
+.display-lede strong { color: var(--text); font-weight: 600; }
+```
+
+**HTML pattern:**
+```html
+<div class="eyebrow eyebrow-primary">ACME STORYHUB · DISCOVERY</div>
+<h1 class="display-h1">Editorial org at a glance</h1>
+<p class="display-lede">
+  Vertical content desks own beats. Horizontal teams span every desk —
+  both organized by <strong>group</strong>, the high-level rollup that
+  drives interface design, default views, and notifications.
+</p>
+```
+
+### 13b. Eyebrow Labels
+
+Tracked-uppercase tiny captions used above section openers, card groups, and meta info ("VERTICALS — EDITORIAL + NEWSGATHERING").
+
+```css
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--eyebrow-tracking);
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.eyebrow-primary { color: var(--primary); }
+.eyebrow-accent { color: var(--accent); }
+.eyebrow-success { color: var(--success); }
+.eyebrow-error { color: var(--error-red); }
+.eyebrow-bar {
+  display: block;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+```
+
+### 13c. Tab Navigation (interactive on screen, hidden in print)
+
+```css
+.tab-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  margin: 0 0 32px 0;
+  background: transparent;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: default;
+  transition: background 120ms ease, color 120ms ease;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn--active {
+  background: #111827;
+  color: white;
+  font-weight: 600;
+}
+.tab-section { margin-bottom: 64px; }
+.tab-section:not(.tab-section--active) { display: block; } /* visible by default; JS optional */
+```
+
+**HTML pattern:**
+```html
+<nav class="tab-nav">
+  <button class="tab-btn tab-btn--active">Org</button>
+  <button class="tab-btn">Workflows</button>
+  <button class="tab-btn">Personas</button>
+  <button class="tab-btn">Scope</button>
+</nav>
+<section class="tab-section tab-section--active" data-tab="org">
+  <!-- content -->
+</section>
+```
+
+Note: Sections are visible by default — no JS required for the print version. If a consuming skill wants screen-only tab switching, layer minimal JS that toggles `.tab-section--active`.
+
+### 13d. Compare Grid (In Scope / Out of Scope, two-column)
+
+```css
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.compare-col {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.compare-col-rule {
+  background: var(--bg-light);
+  border-left: 3px solid var(--text-muted);
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+.compare-col--success .compare-col-rule {
+  background: #ECFDF5;
+  border-left-color: var(--success);
+}
+.compare-col--error .compare-col-rule {
+  background: #FEF2F2;
+  border-left-color: var(--error-red);
+}
+.compare-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.compare-item:last-child { margin-bottom: 0; }
+.compare-item-title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: var(--heading-spacing);
+}
+.compare-item-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+```
+
+**HTML pattern:**
+```html
+<div class="compare-grid">
+  <div class="compare-col compare-col--success">
+    <div class="eyebrow eyebrow-success">In Scope · MVP</div>
+    <h2 class="display-h2" style="font-size: 22px;">What ships</h2>
+    <div class="compare-col-rule"><em>Rule of thumb:</em> Anything directly tied to creating or updating editorial workflow.</div>
+    <div class="compare-item">
+      <div class="compare-item-title">Storyline</div>
+      <div class="compare-item-desc">Top-level container — multiple Stories roll up under a Storyline.</div>
+    </div>
+    <!-- more items -->
+  </div>
+  <div class="compare-col compare-col--error">
+    <div class="eyebrow eyebrow-error">Out of Scope · MVP</div>
+    <h2 class="display-h2" style="font-size: 22px;">What's deferred</h2>
+    <div class="compare-col-rule"><em>Rule of thumb:</em> Anything not directly tied to creating or updating editorial workflow.</div>
+    <!-- items -->
+  </div>
+</div>
+```
+
+### 13e. Segmented Bar (workflow mix indicator)
+
+```css
+.segmented-bar {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin: 8px 0 6px 0;
+}
+.bar-segment { height: 100%; }
+.bar-segment--primary { background: var(--primary); }
+.bar-segment--accent { background: var(--accent); }
+.bar-segment--success { background: var(--success); }
+.bar-segment--error { background: var(--error-red); }
+.bar-segment--teal { background: var(--accent-teal); }
+.bar-segment--muted { background: var(--text-muted); opacity: 0.35; }
+
+.bar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.bar-legend strong {
+  color: var(--text);
+  font-weight: 600;
+  margin-right: 2px;
+}
+.bar-legend .legend-extra { font-style: italic; opacity: 0.7; }
+```
+
+**HTML pattern:**
+```html
+<div class="segmented-bar">
+  <div class="bar-segment bar-segment--primary" style="width: 70%"></div>
+  <div class="bar-segment bar-segment--error" style="width: 30%"></div>
+</div>
+<div class="bar-legend">
+  <span><strong>70%</strong>Planned</span>
+  <span><strong>30%</strong>Breaking</span>
+</div>
+```
+
+### 13f. Dot Legend (matrix presence indicators)
+
+Used in persona-by-phase matrices where you need to indicate primary / secondary / absent involvement.
+
+```css
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.dot--filled { background: var(--primary); }
+.dot--outlined {
+  background: transparent;
+  border: 2px solid var(--primary);
+  width: 8px; height: 8px; /* compensate for stroke */
+}
+.dot--ghost {
+  background: transparent;
+  border: 1.5px dashed #D1D5DB;
+  width: 8px; height: 8px;
+}
+
+/* Dot color variants — pair with role color */
+.dot--accent.dot--filled { background: var(--accent); }
+.dot--accent.dot--outlined { border-color: var(--accent); }
+.dot--success.dot--filled { background: var(--success); }
+.dot--success.dot--outlined { border-color: var(--success); }
+.dot--error.dot--filled { background: var(--error-red); }
+.dot--error.dot--outlined { border-color: var(--error-red); }
+
+.dot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.dot-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Matrix table that uses dots as cells */
+.dot-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.dot-matrix th, .dot-matrix td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.dot-matrix thead th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.dot-matrix thead th .matrix-num {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+  letter-spacing: var(--eyebrow-tracking);
+}
+.dot-matrix tbody th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+}
+.dot-matrix .matrix-active-col {
+  background: var(--bg-light);
+}
+```
+
+### 13g. Card-clean modifier (pure hairline, no left accent)
+
+Apply to existing cards (`.persona-card`, `.module-card`, `.story-card`, etc.) when you want the pure StoryHub aesthetic — uniform 1px border on all sides, no colored accent bar. Pair with an internal eyebrow + dot for semantic differentiation.
+
+```css
+.card-clean {
+  border-left-width: 1px !important;
+  border-left-color: var(--border) !important;
+}
+```
+
+### 13h. Section block (light-gray rounded container)
+
+Used to group related content under a single eyebrow heading (the way StoryHub groups all "Verticals" cards in one rounded surface).
+
+```css
+.section-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 28px;
+}
+.section-block-head { margin-bottom: 20px; }
+.section-block-head .eyebrow { margin-bottom: 4px; }
+.section-block-head .section-block-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+```
+
+---
+
+## 14. Print CSS (Landscape PDF)
 
 This is the tested, production-ready print block. Copy it in full into every generated document's `<style>` tag. The reasoning behind each rule is explained in `SKILL.md` Section 4.
 
@@ -916,5 +1293,126 @@ This is the tested, production-ready print block. Copy it in full into every gen
   .section-header { margin-top: 24px; }
   .auto-card { margin-bottom: 14px; }
   .interface-card { margin-bottom: 18px; }
+
+  /* ══════════════════════════════════════════════════════
+     DISCOVERY COMPONENTS (Section 13)
+     ══════════════════════════════════════════════════════ */
+
+  /* Tab nav: hidden in print — each tab-section becomes its own page.
+     Document authors should pair tab-nav with explicit eyebrow/headline
+     inside each tab-section so the printed version reads as flat sections. */
+  .tab-nav { display: none !important; }
+  .tab-section {
+    break-before: page;
+    page-break-before: always;
+    margin-bottom: 0;
+  }
+  .tab-section:first-of-type {
+    break-before: auto;
+    page-break-before: auto;
+  }
+
+  /* Display headlines: scale ~22% for landscape page width */
+  .display-h1 {
+    font-size: 44px;
+    margin-bottom: 12px;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .display-h2 {
+    font-size: 28px;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .display-lede {
+    font-size: 14px;
+    margin-bottom: 24px;
+    max-width: 100%;
+    break-after: auto;
+  }
+
+  /* Eyebrows stay with their next sibling */
+  .eyebrow { break-after: avoid; page-break-after: avoid; }
+
+  /* Compare grid: stack to block layout in print so columns can break
+     gracefully across pages (same trick as .persona-grid). */
+  .compare-grid { display: block !important; }
+  .compare-grid .compare-col {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+    break-inside: auto;
+    page-break-inside: auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .compare-col-rule {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .compare-col--success .compare-col-rule {
+    background: #ECFDF5 !important;
+    border-left-color: var(--success) !important;
+  }
+  .compare-col--error .compare-col-rule {
+    background: #FEF2F2 !important;
+    border-left-color: var(--error-red) !important;
+  }
+  .compare-item {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Segmented bar: preserve every colored segment */
+  .segmented-bar {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .bar-segment {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .bar-segment--primary { background: var(--primary) !important; }
+  .bar-segment--accent { background: var(--accent) !important; }
+  .bar-segment--success { background: var(--success) !important; }
+  .bar-segment--error { background: var(--error-red) !important; }
+  .bar-segment--teal { background: var(--accent-teal) !important; }
+  .bar-legend { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Dot legend + dot matrix: dots must survive printer color flattening.
+     Outlined/ghost dots use border so they render even if backgrounds strip. */
+  .dot, .dot--filled, .dot--outlined, .dot--ghost {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .dot--filled { background: var(--primary) !important; }
+  .dot--accent.dot--filled { background: var(--accent) !important; }
+  .dot--success.dot--filled { background: var(--success) !important; }
+  .dot--error.dot--filled { background: var(--error-red) !important; }
+  .dot-legend, .dot-matrix {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .dot-matrix { break-inside: auto; page-break-inside: auto; }
+  .dot-matrix tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Section block: container that wraps a group of cards. Let it break;
+     children manage their own breaks. */
+  .section-block {
+    break-inside: auto;
+    page-break-inside: auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 20px;
+  }
 }
 ```

@@ -39,15 +39,15 @@ Adjust these practices to match your personal working style and project complexi
 - One task per subagent for focused execution
 
 ### 3. Self-Improvement Loop
-- After corrections or blockers: capture patterns and learnings
-- Document what worked and what didn't for future reference
-- Build personal decision trees for recurring problem types
-- Review lessons at session start for relevant projects
+- After ANY correction from the user: update `tasks/lessons.md` with the pattern
+- Write rules for yourself that prevent the same mistake
+- Ruthlessly iterate on these lessons until mistake rate drops
+- Review lessons at session start for relevant project
 
 ### 4. Verification Before Done
 - Never mark a task complete without proving it works
-- Compare behavior between before and after when relevant
-- Ask yourself: "Would a senior engineer approve this?"
+- Diff behavior between main and your changes when relevant
+- Ask yourself: "Would a staff engineer approve this?"
 - Run tests, check logs, demonstrate correctness
 
 ### 5. Demand Elegance (Balanced)
@@ -56,32 +56,30 @@ Adjust these practices to match your personal working style and project complexi
 - Skip this for simple, obvious fixes — don't over-engineer
 - Challenge your own work before presenting it
 
-### 6. Autonomous Execution
-- When given a problem: investigate and resolve it without hand-holding
-- Point at logs, errors, failing tests — then fix them
-- Minimize context-switching required from the customer/team
-- Proactively handle common blockers (missing permissions, environment setup, etc.)
+### 6. Autonomous Bug Fixing
+- When given a bug report: just fix it. Don't ask for hand-holding
+- Point at logs, errors, failing tests — then resolve them
+- Zero context switching required from the user
+- Go fix failing CI tests without being told how
 
 ## Task Management [CUSTOMIZE]
 
 Adapt this workflow to your personal organization system (Obsidian, linear notes, todo app, etc.)
 
-1. **Plan First:** Write plan with checkable items before starting
-2. **Verify Plan:** Check in before starting implementation (especially for complex work)
+1. **Plan First:** Write plan to `tasks/todo.md` with checkable items
+2. **Verify Plan:** Check in before starting implementation
 3. **Track Progress:** Mark items complete as you go
 4. **Explain Changes:** High-level summary at each step
-5. **Document Results:** Summarize what was built and any decisions made
-6. **Capture Lessons:** Document patterns and learnings for future reference
+5. **Document Results:** Add review section to `tasks/todo.md`
+6. **Capture Lessons:** Update `tasks/lessons.md` after corrections
 
 ## Core Principles [CUSTOMIZE]
 
 These are baseline principles—extend with values important to your team or personal practice:
 
 - **Simplicity First:** Make every change as simple as possible. Minimize code impact.
-- **No Laziness:** Find root causes. No temporary fixes. Senior engineer standards.
+- **No Laziness:** Find root causes. No temporary fixes. Senior developer standards.
 - **Minimal Impact:** Changes should only touch what's necessary. Avoid introducing bugs.
-- **Documentation Debt:** Leave the system clearer than you found it.
-- **Communication:** Be explicit about tradeoffs, blockers, and decisions.
 
 ## Skill Creation Requirements
 
@@ -122,17 +120,17 @@ The folder name becomes the skill identifier and should match the `name` field i
 
 ## Skill Delivery & Installation
 
-When producing `.skill` files for users to install:
+When producing `.skill` files for the user to install:
 
-1. **Package**: Use validation tools to ensure proper structure and YAML formatting
-2. **Deliver**: Use the appropriate delivery mechanism in your platform (Cowork UI button, email, Slack, etc.)
-3. **Never** require users to run CLI commands — platform handles installation automatically
-4. **Never** point users to raw file paths — always use platform delivery methods
-5. **Skill directory permissions**: Read-only in most contexts — copy to temp, edit, repackage before delivery
+1. **Package**: Use `package_skill.py` from the skill-creator scripts — it validates and zips correctly
+2. **Deliver**: Call `mcp__cowork__present_files` with the `.skill` file path — this renders a card with a **"Copy to your skills"** button in the Cowork UI
+3. **Never** tell the user to run CLI commands to install skills — Cowork handles installation via the UI button
+4. **Never** point the user to raw file paths — always use `present_files` for `.skill` delivery
+5. **The `.skills/` directory is read-only** from inside the Cowork VM — you cannot edit installed skills in place; always copy to `/tmp/`, edit there, repackage, and present
 
-### General Skill Update Workflow
+### Skill Update Workflow
 ```
-Copy to temp location → ensure write permissions → edit SKILL.md → validate → package → deliver
+Copy to /tmp/<skill>/ → chmod -R u+w → edit SKILL.md → package_skill.py → present_files
 ```
 
 ## Document Generation Rules
@@ -140,8 +138,7 @@ Copy to temp location → ensure write permissions → edit SKILL.md → validat
 ### Language & Tone
 - Never reference "transcripts", "call recordings", "meeting notes", "auto-generated", or any language that reveals the source material or generation process in customer-facing output
 - Documents should read as if the SA authored them directly
-- State observations as facts, not citations
-- Use active voice and direct language
+- Question contexts should state observations as facts, not cite sources
 
 ### Print CSS (Landscape PDF)
 - Always include `@page { size: landscape; margin: 0.4in 0.5in; }`
@@ -186,9 +183,10 @@ Your Vault/
 ├── 02 - Clients/            # One note per client (relationship context)
 ├── 03 - Daily/              # Daily index notes (what was worked on)
 ├── 04 - Decisions/          # Standalone decision records (atomic, linkable)
-├── 05 - Working Memory/     # AI context files (bootstrap, preferences)
+├── 05 - Cowork/             # AI working memory (bootstrap files)
 │   ├── _context.md          # Session bootstrap — read FIRST every session
 │   └── _preferences.md      # Your patterns, style, recurring instructions
+├── 06 - Reviews/            # Generated review summaries
 └── Templates/               # Note templates for consistent structure
 ```
 

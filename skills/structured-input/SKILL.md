@@ -83,7 +83,7 @@ Consuming skills add their own domain-specific fields **inside the same `<input>
 ```xml
 <technical-design-doc>
   <!-- Base fields -->
-  <client>Hilton</client>
+  <client>Acme Corp</client>
   <solution>Guest Experience Hub</solution>
   <brand_color primary="#1E4380" accent="#B09A61" />
   <stakeholders>Front Desk Agent, Operations Manager</stakeholders>

@@ -20,6 +20,17 @@ Generate branded, professional technical workflow documents from call transcript
 
 Input parsing rules are in `structured-input`. The CSS guide is in `doc-css-framework/SKILL.md` and the actual CSS code is in `doc-css-framework/references/css-components.md`. Design principles are in `airtable-design-principles`. Automation constraints are in `automation-architect/references/platform-reference.md`. AI opportunity analysis is in `ai-opportunities`. This skill only defines the **section structure, content extraction, and document-specific patterns**.
 
+### Compaction-Resilient Correction Mode
+
+The dependency reads above are for INITIAL generation only. When correcting an already-generated artifact:
+
+1. **Re-read your own output file** (the HTML you already generated) — the CSS framework, component patterns, and brand colors are already embedded in it
+2. **Do NOT re-read the dependency skill files** listed above — they are already incorporated in your output
+3. **Use the Edit tool for targeted fixes** — do not regenerate the entire document
+4. **After 3 correction rounds**, recommend switching to a fresh subagent with just the artifact + corrections
+
+This prevents re-read loops when auto-compaction strips earlier Read tool outputs from conversation memory.
+
 ## Input Types
 
 This skill accepts any of the following:
@@ -289,7 +300,7 @@ The `@media print` block is in `doc-css-framework/references/css-components.md` 
 **User provides structured XML input:**
 ```xml
 <workflow-doc>
-  <client>Hilton</client>
+  <client>Acme Corp</client>
   <solution>Team Engagement Hub</solution>
   <brand_color primary="#1E4380" accent="#B09A61" />
   <stakeholders>Team Member, Manager, HR Admin</stakeholders>
@@ -301,19 +312,19 @@ The `@media print` block is in `doc-css-framework/references/css-components.md` 
 **Skill does:**
 1. Reads `structured-input/SKILL.md` for the input parsing protocol
 2. Reads `doc-css-framework/SKILL.md` for the shared CSS framework
-3. Normalizes input (per structured-input protocol) — client: "Hilton", brand colors set directly, stakeholders pre-defined
+3. Normalizes input (per structured-input protocol) — client: "Acme Corp", brand colors set directly, stakeholders pre-defined
 4. Skips web search entirely (brand colors provided)
 4. Extracts project scope, 4 modules, user stories (using specified stakeholder roles), workflows, ERD, data design
 5. Identifies ambiguous areas → generates clarifying questions (scrubbed of source references)
 6. Renders complete 7-section branded HTML document
 7. Presents the file link
 
-**User says:** "Here's the transcript from my call with Hilton. Can you generate the workflow doc?" *(freeform)*
+**User says:** "Here's the transcript from my call with Acme Corp. Can you generate the workflow doc?" *(freeform)*
 **Skill does:**
 1. Reads `structured-input/SKILL.md` for the input parsing protocol
 2. Reads `doc-css-framework/SKILL.md` for the shared CSS framework
-3. Normalizes input (per structured-input protocol) — infers client: "Hilton" from context, brand colors null
-3. Searches for Hilton brand colors → applies #1E4380 / #B09A61
+3. Normalizes input (per structured-input protocol) — infers client: "Acme Corp" from context, brand colors null
+3. Searches for Acme Corp brand colors → applies #1E4380 / #B09A61
 4. Extracts project scope, 4 modules, user stories, workflows, ERD, data design
 5. Identifies ambiguous areas → generates clarifying questions (scrubbed of source references)
 6. Renders complete 7-section branded HTML document
@@ -331,15 +342,15 @@ The `@media print` block is in `doc-css-framework/references/css-components.md` 
 ## Output Checklist
 
 Before presenting the file, verify:
-- [ ] `airtable-design-principles/SKILL.md` was read before generating Clarifying Questions
+- [ ] `airtable-design-principles/SKILL.md` was read before INITIAL generation (skip on correction passes — design principles are embedded in artifact)
 - [ ] Design principles pass completed — design-time risk flags checked against the proposed data model
 - [ ] Principles-driven questions added where evidence of risk exists (not as generic warnings)
-- [ ] `structured-input/SKILL.md` was read before input parsing
+- [ ] `structured-input/SKILL.md` was read before INITIAL generation (skip on correction passes — normalization is embedded in artifact)
 - [ ] Input was normalized into the canonical object (Step 0) per structured-input protocol
-- [ ] `doc-css-framework/SKILL.md` was read before generating HTML
-- [ ] `doc-css-framework/references/css-components.md` was read and its contents copied into `<style>` tag
+- [ ] `doc-css-framework/SKILL.md` was read before INITIAL generation (skip on correction passes — CSS framework is embedded in artifact)
+- [ ] `doc-css-framework/references/css-components.md` was read and its contents copied into `<style>` tag before INITIAL generation (skip on correction passes)
 - [ ] All 7 sections present in correct order
-- [ ] `ai-opportunities/SKILL.md` was read before generating Section 6
+- [ ] `ai-opportunities/SKILL.md` was read before INITIAL generation (skip on correction passes — AI framework is embedded in artifact)
 - [ ] AI touchpoints identified across all three mechanisms (Automation, AI Field, Field Agent)
 - [ ] Each opportunity has both business layer (visible) and technical layer (collapsible)
 - [ ] Implementation recommendation includes phasing with rationale

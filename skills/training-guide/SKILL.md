@@ -16,6 +16,17 @@ Generate branded, print-ready training guides from video transcripts, screen rec
 
 Input parsing rules are defined in `structured-input`. Styling and print rules are defined in `doc-css-framework`. Data extraction logic is defined in `base-metadata-extractor`. This skill defines the **document structure, content extraction patterns, and training-specific components**.
 
+### Compaction-Resilient Correction Mode
+
+The dependency reads above are for INITIAL generation only. When correcting an already-generated artifact:
+
+1. **Re-read your own output file** (the HTML you already generated) — the CSS framework, component patterns, and brand colors are already embedded in it
+2. **Do NOT re-read the dependency skill files** listed above — they are already incorporated in your output
+3. **Use the Edit tool for targeted fixes** — do not regenerate the entire document
+4. **After 3 correction rounds**, recommend switching to a fresh subagent with just the artifact + corrections
+
+This prevents re-read loops when auto-compaction strips earlier Read tool outputs from conversation memory.
+
 ## Input Types
 
 This skill accepts any combination of:
@@ -229,3 +240,26 @@ The output should be a single self-contained HTML file with:
 ## Reference
 
 For a complete working example of this skill's output, see `references/example-structure.md` which documents the component patterns and HTML structure used in the Montgomery County Weekly Reports training guide.
+
+## Output Checklist
+
+Before presenting the file, verify:
+
+- [ ] `structured-input/SKILL.md` was read before INITIAL generation (skip on correction passes — normalization is embedded in artifact)
+- [ ] Input was normalized into the canonical object (Step 0) per structured-input protocol
+- [ ] `doc-css-framework/SKILL.md` was read before INITIAL generation (skip on correction passes — CSS framework is embedded in artifact)
+- [ ] `base-metadata-extractor/SKILL.md` was read before INITIAL generation if needed (skip on correction passes)
+- [ ] All personas extracted and documented with icon, color, and description
+- [ ] Each persona has sequential workflow steps with title, detail, mock UI, annotations, and tip
+- [ ] Mock UIs accurately reflect the actual Airtable interface (or screenshots provided)
+- [ ] Annotations are specific and explain "what" and "why" (not generic descriptions)
+- [ ] Tips provide practical context (permissions, performance, workflow context, safety, shortcuts)
+- [ ] Cover page shows brand colors and solution title
+- [ ] Persona tabs are functional on screen (sticky navigation, show/hide personas)
+- [ ] All personas display sequentially in print with page breaks
+- [ ] Step cards avoid breaking across pages (`page-break-inside: avoid`)
+- [ ] Print CSS included for proper PDF formatting (letter size, margins, section breaks)
+- [ ] No "transcript", "auto-generated", "video", or source-revealing language anywhere
+- [ ] File is self-contained (embedded CSS, no external dependencies except Google Fonts)
+- [ ] File saved to the Cowork workspace folder with descriptive filename
+- [ ] File is a single HTML document with all styles and scripts embedded

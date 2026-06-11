@@ -21,6 +21,17 @@ Input parsing rules are defined in `structured-input`. Data extraction logic is 
 
 Note: This skill does NOT depend on `doc-css-framework` (that is for HTML-based skills only).
 
+### Compaction-Resilient Correction Mode
+
+The dependency reads above are for INITIAL generation only. When correcting an already-generated artifact:
+
+1. **Re-read your own output file** (the .docx you already generated) — the risk analysis, severity matrices, and platform constraints are already embedded in it
+2. **Do NOT re-read the dependency skill files** listed above — they are already incorporated in your output
+3. **Use targeted edits** — do not regenerate the entire document
+4. **After 3 correction rounds**, recommend switching to a fresh subagent with just the artifact + corrections
+
+This prevents re-read loops when auto-compaction strips earlier Read tool outputs from conversation memory.
+
 ## Overview
 
 A health check evaluates an Airtable base's architecture against known platform behaviors and limits. It serves two audiences:
@@ -336,9 +347,9 @@ Packer.toBuffer(doc).then(buffer => {
 
 Before presenting the document to the user, verify:
 
-- [ ] `structured-input/SKILL.md` was read before input parsing
+- [ ] `structured-input/SKILL.md` was read before INITIAL generation (skip on correction passes — normalization is embedded in artifact)
 - [ ] Input was normalized into the canonical object (Step 0) per structured-input protocol
-- [ ] `base-metadata-extractor/SKILL.md` was read before extracting data
+- [ ] `base-metadata-extractor/SKILL.md` was read before INITIAL generation (skip on correction passes — extraction logic is embedded in artifact)
 - [ ] Schema extracted via MCP (`list_tables_for_base` + `get_table_schema`)
 - [ ] Cover page has correct customer name, partner name, date, base ID, and status
 - [ ] Table inventory matches MCP data (table count, field counts)

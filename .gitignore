@@ -13,3 +13,9 @@ Thumbs.db
 
 # Temp archives
 zi*
+
+# Sync process artifacts (audit trail, not for distribution)
+SYNC-REPORT-*.md
+
+# Scratch / test files created during sync runs
+__*

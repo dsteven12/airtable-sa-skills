@@ -74,7 +74,7 @@ echo "Git status:" && git status
 ```
 
 Expected:
-- `git config user.email` → your Airtable corporate email
+- `git config user.email` → your Airtable email
 - `git status` → clean working tree
 
 ## Step 5: Next steps to share with the user

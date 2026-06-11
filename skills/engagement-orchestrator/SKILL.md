@@ -226,7 +226,7 @@ Each phase's context block contains:
 
 ### Starting a new engagement
 
-User says: "Starting a new customer engagement for Acme Corp" or "New project — Hilton M&L" or "Let's kick off technical scoping for State of Florida"
+User says: "Starting a new customer engagement for Acme Corp" or "New project — Globex" or "Let's kick off technical scoping for Contoso"
 
 Orchestrator:
 1. Asks engagement type (customer / learning / base review) if not obvious from context
@@ -237,7 +237,7 @@ Orchestrator:
 
 ### Resuming an engagement
 
-User says: "Where are we with Acme Corp?" or "Let's pick up the Hilton build" or "What phase am I in?"
+User says: "Where are we with Acme Corp?" or "Let's pick up the Acme Corp build" or "What phase am I in?"
 
 Orchestrator:
 1. Reads the project note's `<engagement>` block
